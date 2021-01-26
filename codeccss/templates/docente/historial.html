@@ -1,0 +1,117 @@
+{%extends 'docente/inicio.html' %}
+{% load staticfiles %}
+{%load templates%}
+{%block content%}
+        <div class="col-lg-12">
+          {% if request.user.is_superuser %}
+         <!-- SELECT2 EXAMPLE -->
+         <div class="card card-default">
+            <div class="card-header">
+              <h3 class="card-title">Filtros de historial</h3>
+  
+              <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                  <i class="fas fa-minus"></i>
+                </button>
+               
+              </div>
+            </div>
+            <!-- /.card-header -->
+            <div class="card-body">
+              <div class="row">
+                <!-- /.col -->
+                <div class="col-lg-12">
+                  <div class="form-group">
+                    <label>Modulo</label>
+                    <select id="select" class="select2bs4" multiple="multiple" data-placeholder="Seleccione opcion"
+                            style="width: 100%;">
+                      {%for value in option%}
+                      <option>{{value}}</option>
+                      {%endfor%}
+                    </select>
+                  </div>
+                  <!-- /.form-group -->
+                
+                  <div class="form-group">
+                    <label>Periodo</label>
+  
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <span class="input-group-text">
+                          <i class="far fa-calendar-alt"></i>
+                        </span>
+                      </div>
+                      <input type="text" class="form-control float-right" id="reservation">
+                    </div>
+                    <!-- /.input group -->
+                  </div>
+                  
+                </div>
+                <input id="cargar" type="button" class="btn btn-success" value="Cargar">
+                <!-- /.col -->
+              </div>
+              <!-- /.row -->
+            </div>
+            <!-- /.card-body -->
+          </div>
+          {%else%}
+            <p>No tienes permisos para poder realizar esta accion</p>
+          {%endif%}
+          <!-- /.card -->
+        </div>
+{%endblock content%}
+{%block css%}
+<link rel="stylesheet" href="/static/css/select2.min.css">
+<link rel="stylesheet" href="/static/css/select2-bootstrap4.min.css">
+<link rel="stylesheet" href="/static/css/daterangepicker.css">
+<script src="/static/js/charts.js"></script>
+{%endblock css%}
+{%block js%}
+<script src="/static/js/select2.full.min.js"></script>
+<script src="/static/js/moment.min.js"></script>
+<script src="/static/js/daterangepicker.js"></script>
+<script type="text/javascript">
+$(function () {
+
+    $('.select2bs4').select2({
+      theme: 'bootstrap4'
+    })
+    
+    //Date range picker
+    $('#reservation').daterangepicker({
+        locale: {
+              format:'YYYY-MM-DD',
+              applyLabel: 'Cargar',
+              cancelLabel: 'Cancelar',
+              customRangeLabel: 'Custom Range',
+              daysOfWeek: ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie','Sab'],
+              monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+              firstDay: 1
+          }
+    })
+    
+    
+    $('#cargar').on("click",function(){
+      var jsonString = JSON.stringify($("#select").val());
+        $.ajax({
+            url:'{%url "Ajax_ConsultaHistorial"%}',
+            type:'POST',
+            data:{
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                date_start:$("#reservation").data('daterangepicker').startDate.format("YYYY-MM-DD"),
+                date_end:$("#reservation").data('daterangepicker').endDate.format("YYYY-MM-DD"),
+                module:jsonString
+            },
+            success:function(data){
+
+            },
+            error:function(data){
+
+            }
+        })
+    })
+
+});
+
+</script>
+{%endblock js%}

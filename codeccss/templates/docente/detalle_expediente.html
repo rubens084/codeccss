@@ -1,0 +1,150 @@
+{%extends 'docente/inicio.html' %}
+{% load staticfiles %}
+{%load templates%}
+{%block content%}
+            <div class="col-lg-12">
+              {%if request.user|has_group:"Docente" or request.user.is_superuser%}
+              <div class="card card-default">
+                <div class="card-body">
+                  <div class="form-group">
+                    <select class="form-control" id="modulo" name="modulo">
+                    {%for values in modulos.all%}
+                      <option>{{values}}</option>
+                      {%endfor%}
+                    </select>
+                    </div>
+                    <form action="{% url 'Ajax_AltaDocumentoExpediente' %}" class="dropzone" id="myDropzone" method='POST' enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input id="file" type="file" name="file">
+                        <input id="matricula" type="text" name="matricula" style="display: none;">
+                        <input id="identificador" type="text" name="identificador" style="display: none;">
+                        <input id="rubro" type="text" name="rubro" style="display: none;">
+                      </form>
+                </div>
+              </div>
+            </div>
+
+                <div class="col-lg-12">
+                  <div class="card">
+                    <div class="card-header">
+                      <h3 class="card-title">Contenedor de creditos complementarios</h3>
+      
+                    
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body table-responsive p-0">
+                      <table class="table table-hover text-nowrap">
+                        <thead>
+                          <tr>
+                            <th>Matricula</th>
+                            <th>Nombre</th>
+                            <th>Rubro</th>
+                            <th>Estado</th>
+                            <th>Alta</th>
+                            <th>Accion</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {%for data in creditos%}
+                            <tr>
+                              <td>{{data.matricula}}</td>
+                              <td>{{data.nombre}}</td>
+                              <td>{{data.rubro}}</td>
+                              <td>{%if data.estado == True%}Activo{%else%}Inactivo{%endif%}</td>
+                              <td>{{data.created_at}}</td>
+                              <td><a href="{{data.directorio.url}}" type="button" class="btn btn-block btn-success btn-sm">Visualizar</a></td>
+                            </tr>
+                            {%endfor%}
+                            </tbody>
+                      </table>
+                    </div>
+                    <!-- /.card-body -->
+                  </div>
+                  <!-- /.card -->
+                </div>
+                {%else%}
+                <p>No tienes permisos para poder realizar esta accion</p>
+                {%endif%}
+</div>
+{%endblock content%}
+{%block css%}
+<link rel="stylesheet" href="/static/css/dropzone.css">
+<style>
+    .dropzone{
+        border: 2px dashed blue;
+    }
+    .dropzone #file{
+        display: none;
+    }
+</style>
+{%endblock css%}
+{%block js%}
+<script src="/static/js/dropzone.js"></script>
+<script type="text/javascript">
+  $("#modulo").on("change",function(){
+    $("#rubro").val($("#modulo option:selected").val())
+  })
+  let searchParams = new URLSearchParams(window.location.search)
+  let param = searchParams.get('matricula')
+  let rubro = $("#modulo option:selected").val()
+  $("#rubro").val(rubro)
+  $("#identificador").val(param)
+  var fecha = new Date();
+  var options = { year: 'numeric', month: 'long', day: 'numeric' };
+  horario=new Date()
+  hora=horario.getHours()
+  minutos=horario.getMinutes()
+  const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 5000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer)
+    toast.addEventListener('mouseleave', Swal.resumeTimer)
+  }
+})
+        var url = window.location.pathname;
+        $("#matricula").val(url.substring(url.lastIndexOf('/') + 1))
+        Dropzone.options.myDropzone ={
+        addRemoveLinks: true,  
+        paramName: "directorio",
+        autoProcessQueue: true,
+        maxFiles:1,
+        maxFilesize: 2,
+        acceptedFiles: ".pdf",
+        parallelUploads: 1,
+        init :  function (){
+
+            this.on( "error", function( file, response){
+                Toast.fire({
+                    icon: "error",
+                    title: "Verifique la conexion o que las especificaciones sean correctas",
+                })
+            });
+
+            this.on( "success", function( file, response){
+                this.removeFile(file);
+                Toast.fire({
+                    icon: response.type,
+                    title: response.message,
+                })
+
+                $('.table > tbody').append(`
+                <tr>
+                            <td>`+param+`</td>
+                            <td>`+response.nombre+`</td>
+                            <td>`+response.rubro+`</td>
+                            <td>Activo</td>
+                            <td>`+fecha.toLocaleDateString("es-ES", options)+` a las `+hora+`:`+minutos+` </td>
+                            <td><a href="`+response.url+`" type="button" class="btn btn-block btn-success btn-sm">Visualizar</a></td>
+                          </tr>
+                `)
+            });
+        }
+    };
+    
+  
+    </script>
+{%endblock js%}

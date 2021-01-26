@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+    <head>
+      <!-- Google Font: Source Sans Pro -->
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+      <!-- Font Awesome Icons -->
+      <link rel="stylesheet" href="/static/iconos/css/all.min.css">
+      <!-- Theme style -->
+      <link rel="stylesheet" href="/static/css/admin.min.css">
+      <style>
+        .content-table{
+          margin: 10px 0px;
+        }
+      </style>
+      <title>{{title}}</title>
+    </head>
+    <body>
+      <div class="wrapper">
+      <!-- Navbar -->
+      <nav class="navbar navbar-expand navbar-white navbar-light">
+        <!-- Right navbar links -->
+        <ul class="navbar-nav ml-auto">     
+          <!-- Notifications Dropdown Menu -->
+          <li class="nav-item dropdown">
+            <a class="nav-link" data-toggle="dropdown" href="#">
+              <i class="fas fa-user-cog"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+              <div class="dropdown-divider"></div>
+              <a href="{%url 'salir'%}" class="dropdown-item" style="text-align: end;">
+                <i class="fas fa-sign-out-alt mr-2"></i>Salir
+              </a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+      <!-- /.navbar -->
+      <div class="content">
+      <div class="col-lg-12 content-table">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Contenedor de creditos</h3>
+          </div>
+      <div class="card-body table-responsive p-0">
+            <table class="table table-hover text-nowrap">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Rubro</th>
+                  <th>Estado</th>
+                  <th>Alta</th>
+                </tr>
+              </thead>
+              <tbody>
+              {%for value in exp%}
+              <tr>
+                <td>{{value.nombre}}</td>
+                <td>{{value.rubro}}</td>
+                <td>{%if value.estado == True%}Activo{%else%}Inactivo{%endif%}</td>
+                <td>{{value.created_at}}</td>
+                <td><a href="{{value.directorio.url}}" type="button" class="btn btn-block btn-success btn-sm">Visualizar</a></td>
+              </tr>
+              {%endfor%}  
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-12 content-table">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Contenedor de documentos de servicio social</h3>
+          </div>
+          <div class="card-body table-responsive p-0">
+            <table class="table table-hover text-nowrap">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Estado</th>
+                  <th>Alta</th>
+                </tr>
+              </thead>
+              <tbody>
+              {%for value in documentos%}
+              <tr>
+                <td>{{value.nombre}}</td>
+                <td>{%if value.estado == True%}Activo{%else%}Inactivo{%endif%}</td>
+                <td>{{value.created_at}}</td>
+                <td><a href="{{value.directorio.url}}" type="button" class="btn btn-block btn-success btn-sm">Visualizar</a></td>
+              </tr>
+              {%endfor%}  
+              </tbody>
+            </table>
+          </div>    
+          </div>
+      </div>
+      </div> 
+    </div>
+        <!-- jQuery -->
+        <script src="/static/js/jquery.min.js"></script>
+        <!-- Bootstrap -->
+        <script src="/static/js/bootstrap.min.js"></script>
+        <!-- AdminLTE -->
+        <script src="/static/js/admin.js"></script>
+    </body>
+</html>

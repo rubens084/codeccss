@@ -1,0 +1,175 @@
+{%extends 'docente/inicio.html' %}
+{% load staticfiles %}
+{%load templates%}
+{%block content%}
+<div class="col-lg-12">
+  {%if request.user.is_superuser%}
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title">Modulos Disponibles</h5>
+            <div class="card-tools">
+              <button type="button" class="btn btn-tool agregar" title="Agregar Modulo" data-toggle="modal" data-target="#modal">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <table class="table table-hover text-nowrap">
+                <thead>
+                  <tr>
+                    <th>Nombre</th>
+                    <th>Accion</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {%for values in data%}
+                  <tr class="row-select">
+                      <td>{{values.tipo}}</td>
+                      <td><button class="btn btn-danger other" value="{{values.id}}">Eliminar</button></td>
+                    </tr>
+                  {%endfor%}
+                    </tbody>
+              </table>
+          </div>
+    </div>
+    
+      <!-- modal -->
+      <div id="modal" class="modal fade show" id="modal-default" aria-modal="true" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Registro de expediente</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="return false;">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="modulo">Nombre:</label>
+                            <input type="text" required autocomplete="off" class="form-control" id="modulo" placeholder="Ingresa nombre del modulo">
+                          </div> 
+                          <div class="form-group">
+                            <label for="valor">Valor:</label>
+                            <input type="text" required autocomplete="off" class="form-control input-number" id="valor" placeholder="Ingresa el valor maximo de credito">
+                          </div> 
+                          <input type="button" id="guardar" class="btn btn-primary" style="float: right;" value="Registrar">
+                        </div>
+                    <!-- /.card-body -->
+                  </form>            
+                </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- termina modal -->
+      {%else%}
+      <p>No tienes permisos para poder realizar esta accion</p>
+      {%endif%}
+</div>
+
+
+{%endblock content%}
+{%block css%}
+{%endblock css%}
+{%block js%}
+<script type="text/javascript">
+$('.input-number').on('input', function () { 
+      this.value = this.value.replace(/[^1-9]/g,'');
+  });
+ const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 5000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer)
+    toast.addEventListener('mouseleave', Swal.resumeTimer)
+  }
+})
+$('#guardar').on("click",function(){
+    if ($('#modulo').val()=="" || $("#valor").val()==""){
+        Toast.fire({
+        icon: 'info',
+        title: "No se permiten campos vacios.",
+        })  
+    }
+    else{
+        $.ajax({
+            url:'{%url "modulo"%}',
+            type:'POST',
+            data:{
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                modulo:$('#modulo').val(),
+                valor:$("#valor").val(),
+                tipo:"add",
+            },
+            success:function(data){
+                Toast.fire({
+                icon: 'success',
+                title: "Modulo agregado correctamente",
+                })  
+                $('.table > tbody').append(`
+                    <tr>
+                        <td>`+$("#modulo").val()+`</td>
+                        <td><button class="btn btn-danger other" value=`+data.id+`>Eliminar</button></td>
+                    </tr>
+                `)
+                $('#modulo').val("")
+                $("#valor").val("")
+            },
+            error:function(){
+                Toast.fire({
+                icon: 'info',
+                title: "Ha ocurrido un problema al agregar, verifique que no exista el modulo ingresado",
+                })  
+            }
+        })
+    }
+})
+$(document).on('click','.other', function() {
+    id=this.value
+    element=$(this)
+
+    Swal.fire({
+        title:'Eliminar',
+        text:'Esta seguro de eliminar el modulo seleccionado',
+        icon:'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, eliminar!'
+    }).then((result) => {
+    if (result.isConfirmed) {
+        $.ajax({
+        url:'{%url "modulo"%}',
+        type:'POST',
+        data:{
+            csrfmiddlewaretoken: '{{ csrf_token }}',
+            id:id,
+            tipo:"update",
+        },
+        success:function(){
+            element.closest('tr').remove()
+            Toast.fire({
+            icon: 'success',
+            title: "Se ha eliminado correctamente",
+            })  
+        },
+        error:function(){
+            Toast.fire({
+            icon: 'error',
+            title: "Ha ocurrido un error, favor de revisar su conexion o intentar nuevamente",
+            })  
+        }
+    })
+    }
+    })
+ 
+})
+
+</script>
+{%endblock js%}

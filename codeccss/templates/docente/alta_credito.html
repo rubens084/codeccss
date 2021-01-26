@@ -1,0 +1,287 @@
+{%extends 'docente/inicio.html' %}
+{% load staticfiles %}
+{%load templates%}
+{%block content%}
+<div class="col-lg-12">
+    {%if request.user|has_group:"Docente" or request.user.is_superuser%}
+    <div class="card">
+      <div class="card-header">
+        <h5 class="card-title">Datos del documento</h5>
+        <div class="card-tools">
+          <button type="button" class="btn btn-tool agregar" title="Agregar plantilla" data-toggle="modal" data-target="#modal-default">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+      </div>
+    <div class="card-body">
+      <form id="form-ajax" enctype="multipart/form-data" method="POST">
+        {%csrf_token%}
+      
+        <div class="form-group form-animate-text">
+          <label for="matricula">Matricula:</label>
+          <div class="input-group">
+            <input type="text" name="matricula" id="matricula" autocomplete="off" class="form-control" placeholder="Buscar matricula">
+            <div class="input-group-append">
+                <button id="buscar" class="btn btn-default" style="cursor: auto;">
+                    <i class="fa fa-search"></i>
+                </button>
+            </div>
+        </div>
+        </div>
+        <div class="form-group form-animate-text">
+            <label for="nombre">Nombre alumno:</label>
+            <input type="text" name="nombre" class="form-control" id="nombre" autocomplete="off" placeholder="Ingresa el nombre del alumno" required="">
+        </div>
+        <div class="form-group form-animate-text">
+            <label for="carrera">Carrera:</label>
+            <input type="text" name="carrera" class="form-control" id="carrera" autocomplete="off" placeholder="Ingresa la carrera del alumno" required="">
+        </div>
+        <div class="form-group">
+          <label>Modulo:</label>
+          <select class="form-control" id="modulo" name="modulo">
+          {%for values in modulos.all%}
+            <option>{{values}}</option>
+            {%endfor%}
+          </select>
+          </div>
+        <div class="form-group form-animate-text">
+            <label for="periodo">Periodo:</label>
+            <input type="text" name="periodo" class="form-control" id="periodo" autocomplete="off" placeholder="Ingrese el periodo actual" required="">
+        </div>
+        <div class="form-group form-animate-text">
+            <label for="valor">Valor curricular:</label>
+            <input type="text" name="valor" class="form-control input-number" id="valor" autocomplete="off" placeholder="Ingrese el valor curricular" required="">
+        </div>
+        <div class="form-group form-animate-text">
+            <label for="jefa">Jefa de departamento:</label>
+            <input type="text" name="jefa" class="form-control" id="jefa" autocomplete="off" placeholder="Ingrese el nombre de la jefa de departamento" required="">
+        </div>
+        <div class="form-group form-animate-text">
+          <label for="documento">Documento:</label>
+          {%if plantillas%}
+          <select class="form-control" id="select_docplantilla" name="select_docplantilla">
+            <option value="0" selected>Seleccione una opcion de documento predeterminado</option>
+            {%for values in plantillas%}
+              <option value={{values.id}}>{{values}}</option>
+              {%endfor%}
+            </select>
+          {%endif%}
+          <div id="div-documento" class="custom-file" style="margin-top: 15px;">
+            <label class="custom-file-label" for="documento">Seleccione un documento</label>
+            <input accept=".doc, .docx" type="file" name="documento" class="form-control" id="documento" autocomplete="off" placeholder="Seleccione un documento" required="">
+        </div> 
+      </div>
+    </form>
+    </div>
+<div class="card-footer">
+    <input type="submit" class="btn btn-primary float-right" id="generar" value="Generar">
+  </div>
+</div>
+<!-- modal -->
+<div class="modal fade show" id="modal-default" aria-modal="true" role="dialog" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Registro de Plantilla</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <form id="form-plantilla" onsubmit="return false;">
+            {%csrf_token%}
+              <div class="card-body">
+                  <div class="form-group">
+                    <label for="documento">Documento:</label>
+                    <div class="custom-file">
+                        <label class="custom-file-label label-plantilla" for="plantilla">Seleccione </label>
+                        <input accept=".doc, .docx" type="file" name="plantilla" class="form-control" id="plantilla" autocomplete="off" placeholder="Plantilla a registrar" required="">
+                    </div>
+                  </div> 
+                    <input type="button" id="registrar_plantilla" class="btn btn-primary" style="float: right;" value="Registrar">
+                  </div>
+              <!-- /.card-body -->
+
+            </form>            
+          </div>
+      
+    </div>
+    <!-- /.modal-content -->
+  </div>
+  <!-- /.modal-dialog -->
+</div>
+<!-- termina modal -->
+{%else%}
+<p>No tienes permisos para poder realizar esta accion</p>
+{%endif%}
+</div>
+      
+{%endblock content%}
+{%block css%}
+{%endblock css%}
+{%block js%}
+<script src="/static/js/input.min.js"></script>
+<script type="text/javascript">
+  $(function () {
+      bsCustomFileInput.init();
+  });
+
+  $('.input-number').on('input', function () { 
+      this.value = this.value.replace(/[^1-9]/g,'');
+  });
+  const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 10000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer)
+    toast.addEventListener('mouseleave', Swal.resumeTimer)
+  }
+})
+
+$("#buscar").on('click',function(){
+  if ($("#matricula").val()!=""){
+    $.ajax({
+      url:'{%url "Ajax_GuardarHistorialCredito" %}',
+      type:'GET',
+      data:{
+        matricula:$("#matricula").val(),
+      },
+      success:function(data){
+        if (data=="info"){
+          Toast.fire({
+          icon: 'info',
+          title: "No se ha encontrado algun registro, favor de registrar los datos",
+        })
+        }
+        else{
+        Toast.fire({
+          icon: 'success',
+          title: "Se han autocompletado campos del ultimo registro guardado",
+        })
+        $("#nombre").val(data.nombre)
+        $("#carrera").val(data.carrera)
+        $("#jefa").val(data.jefa)
+      }},
+      error:function(){
+        Toast.fire({
+          icon: 'error',
+          title: "Ha ocurrido un error con el servidor intente de nuevo",
+        })
+      }
+    })
+  }
+})
+
+$("#registrar_plantilla").on("click",function(){
+    var myform = document.getElementById("form-plantilla");
+    var fd = new FormData(myform);
+    if ($("#plantilla").val()!=""){
+    $.ajax({
+      url:'{%url "Ajax_GuardarPlantilla" %}',
+      type:'POST',
+      data:fd,
+      processData:false,
+      contentType:false,
+      success:function(data){
+        $(".label-plantilla").text("Seleccione un documento")
+        $("#plantilla").val("")
+        Toast.fire({
+          icon: 'success',
+          title: "Se ha guardado la plantilla correctamente, actualiza la pagina para poder utilizar la plantilla",
+        })
+      },
+      error:function(data){
+        Toast.fire({
+          icon: 'error',
+          title: "Ha ocurrido un error con el servidor intente de nuevo",
+        })
+      },
+    })
+  }
+  else{
+    Toast.fire({
+          icon: 'info',
+          title: "No se permiten campos vacios, registre la informacion requerida",
+      })
+  }
+  })
+
+$("#select_docplantilla").on("change",function(){
+  if($(this).find(":selected").val()==0){
+
+    $("#div-documento").css("display","")
+  }
+  else{
+    $("#div-documento").css("display","none")
+    $(".custom-file-label").text("Seleccione un documento")
+    $("#documento").val("")
+  }
+})
+
+$("#generar").on('click',function(){
+    $("#generar").prop('disabled', true);
+    if ($("#matricula").val()!="" && $("#nombre").val()!="" && $("#carrera").val()!=""
+    && $("#periodo").val()!="" && $("#valor").val()!="" && $("#jefa").val()!="" && ($("#documento").val()!="" || $("#select_docplantilla option:selected").val()!="")){
+    var myform = document.getElementById("form-ajax");
+    var fd = new FormData(myform);
+    Toast.fire({
+          icon: 'info',
+          title: "Iniciando proceso, espere un momento",
+      })
+    $.ajax({
+      url:'{%url "Ajax_RedactarCredito"%}',
+      type:'POST',
+      data:fd,
+      processData: false,
+      contentType: false,
+      success:function(data){
+        console.log(data)
+        if (data.result=="denegado"){
+          Toast.fire({
+          icon: data.type,
+          title: "No se puede completar el registro debido a que excede la cantidad de creditos a otorgar",
+        })
+        $("#generar").prop('disabled', false);
+        }
+        else if(data.result=="realizado"){
+          Toast.fire({
+          icon: data.type,
+          title: "Se ha completado el proceso, el archivo se a guardado en el escritorio",
+        })
+        $("#matricula").val("")
+        $("#nombre").val("")
+        $("#carrera").val("")
+        $("#periodo").val("")
+        $("#valor").val("")
+        $("#jefa").val("")
+        $("#select_docplantilla option[value='0']").attr("selected",true);
+        $(".custom-file-label").text("Seleccione un documento")
+        $("#documento").val("")
+        $("#generar").prop('disabled', false);
+        }
+             
+      },
+      error:function(data){
+        Toast.fire({
+          icon: 'error',
+          title: "Ha ocurrido un error con el servidor intente de nuevo",
+        })
+        $("#generar").prop('disabled', false);      
+      },
+      
+  })
+}
+else{
+  Toast.fire({
+  icon: 'info',
+  title: 'Se requiere que registre todos los campos',
+})
+$("#generar").prop('disabled', false);      
+}
+})
+
+  </script>
+{%endblock js%}

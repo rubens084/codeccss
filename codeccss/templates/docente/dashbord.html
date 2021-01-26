@@ -1,0 +1,149 @@
+{% load staticfiles %}
+{%load templates%}
+<!Doctype html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="/static/css/admin.min.css">
+    {%loadsession request.user.id as value%}
+    {%if value == False %}
+    <link rel="stylesheet" href="/static/iconos/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/select2.min.css">
+    <link rel="stylesheet" href="/static/css/select2-bootstrap4.min.css"> 
+    <style>
+      @media (min-width:767px){
+        .content{
+        margin-left: 100px; 
+        margin-right: 100px;
+      }
+      }
+    </style>
+    <title>{{titulo}}</title>
+    <body>
+      <div class="content-header" style="text-align: center;">
+        <div class="container-fluid">
+          <div class="row mb-2">
+            <div class="col-sm-12">
+              <h1 class="m-0">Registro Perfil</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if messages %}
+      <div class="alert-dismiss">
+          {% for message in messages %}
+          <div class="alert {{message.tags}} alert-dismissible fade show" role="alert">
+              <strong>Información, </strong> {{message}}
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span class="fa fa-times"></span>
+              </button>
+          </div>
+    
+          {% endfor %}
+      </div>
+      {% endif %}
+<div class="content">
+  <div class="container-fluid">
+    <div class="row">            
+<div class="col-lg-12">
+<div class="card card-primary">
+<div class="card-header" style="background-color: #1B396A ;">
+  <h3 class="card-title">Informacion</h3>
+</div>
+
+<!-- /.card-header -->
+<!-- form start -->
+<form method="post" action="{%url 'dashbord'%}" enctype="multipart/form-data">
+  {%csrf_token%}
+  <div class="card-body">
+    {% for field in form %}
+    {% if field.auto_id == 'id_foto' %}
+    <label for="foto">Fotografia:</label>
+    <div class="custom-file">
+      <label class="custom-file-label" for="{{field.name}}">Seleccione una imagen</label>
+      {{field}}
+    </div>
+    {%else%}
+    <div class="form-group form-animate-text" >
+      <label for="{{field.name}}">{{field.label}}</label>
+      {{ field.errors }}
+      {{ field.help_text }}
+      {{field}}
+    </div> 
+    {%endif%}
+    {% endfor %}
+    
+  </div>
+  <!-- /.card-body -->
+
+  <div class="card-footer">
+    <input type="submit" class="btn btn-primary float-right" id="actualizar" value="Guardar">
+  </div>
+</form>
+</div>
+</div>
+
+      </div>
+    </div>
+    <!-- /.row -->
+  </div>
+  <script src="/static/js/jquery.min.js"></script>
+  <script src="/static/js/bootstrap.min.js"></script>
+  <script src="/static/js/input.min.js"></script>
+  <script src="/static/js/select2.full.min.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      bsCustomFileInput.init();
+    });
+    $('.select2bs4').select2({
+      theme: 'bootstrap4'
+    })
+    </script>   
+{%else%}
+<!-- Content Wrapper. Contains page content -->
+<div class="content-menu">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-12">
+          <h1 class="title-message">ACESSO DENEGADO</h1>
+        </div>
+      </div>
+    </div><!-- /.container-fluid -->
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="error-page">
+      <h2 class="headline text-warning"> 403</h2>
+
+      <div class="error-content">
+        <h3><i class="fas fa-exclamation-triangle text-warning"></i> Oops! Ya se encuentra registrado.</h3>
+
+        <p class="message">
+          Al parecer no puede acceder al apartado debido a que ya se encuentra un registro con su perfil.
+          <a href="{%url 'inicio_docente'%}">regresar al escritorio. </a>En caso de continuar con inconvenientes
+          acude con el administrador del sitio para validar tu informacion.
+        </p>
+      </div>
+      <!-- /.error-content -->
+    </div>
+    <!-- /.error-page -->
+  </section>
+  <!-- /.content -->
+</div>
+<style>
+  .title-message{
+    text-align: center;
+  }
+  .message{
+    text-align: justify;
+  }
+</style>
+{%endif%}
+</body>
+   
+</html>

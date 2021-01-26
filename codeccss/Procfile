@@ -1,0 +1,1 @@
+web: gunicorn CODECC.wsgi:application --log-file -

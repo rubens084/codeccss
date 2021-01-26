@@ -1,0 +1,92 @@
+<!Doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" href="/static/css/admin.min.css">
+        <link rel="stylesheet" href="/static/css/login_alumno.css">
+        <link rel="stylesheet" href="/static/iconos/css/all.min.css">
+        <title>{{titulo}}</title>
+        <style>
+            body{
+                height: 100vh;
+                width: 100vw;
+            }
+            .centrado{
+                place-items: center;
+                display: flex;
+                justify-content: center;
+                flex-direction: column;
+            }
+            section{
+                height: 60vh;
+                width: 80vw;
+                border-radius: 10px;
+                box-shadow: 0 5px 25px 0px #0E1E38;
+            }
+        </style>
+    </head>
+    <body class="centrado">
+            <section class="content centrado">
+                <div class="container-fluid">
+                    <h2 class="text-center display-4">Busqueda</h2>
+                    <div class="row">
+                        <div class="col-md-8 offset-md-2">
+                                <div class="input-group">
+                                    <input id='matricula' type="search" name="matricula" class="form-control form-control-lg" placeholder="Ingrese matricula">
+                                    <div class="input-group-append">
+                                        <input id="buscar" type="button" class="btn btn-lg btn-default" value="Buscar" style="background-color: #0E1E38; color: white;">                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <script src="/static/js/jquery.min.js"></script>
+            <script src="/static/js/sweetalert.js"></script>
+            <script type="text/javascript">
+                $(function(){
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 5000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer)
+                            toast.addEventListener('mouseleave', Swal.resumeTimer)
+                        }
+                        })
+                    $("#buscar").on("click",function(){
+                        $.ajax({
+                        url:"{%url 'login_alumno'%}",
+                        type:"POST",
+                        data:{
+                            csrfmiddlewaretoken: '{{ csrf_token }}',
+                            matricula:$('#matricula').val()
+                        },
+                        success:function(text){
+                            if(text=='redirect'){
+                                location.href="/expediente_alumno/"+$('#matricula').val()
+                            }
+                            else{
+                                Toast.fire({
+                                icon: text.type,
+                                title: text.message,
+                            })
+                            }
+                        },
+                        error:function(text){
+                            Toast.fire({
+                            icon: "error",
+                            title: "Ha ocurrido un error con el servidor intente de nuevo",
+                        })                       
+                         }
+                    })
+                    })
+                  
+                })
+            </script>
+
+        </body>
+</html>

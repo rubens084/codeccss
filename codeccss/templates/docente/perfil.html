@@ -1,0 +1,67 @@
+{%extends "docente/inicio.html"%}
+{%block content%}
+<div class="col-lg-12">
+  {% if messages %}
+  <div class="alert-dismiss">
+      {% for message in messages %}
+      <div class="alert {{message.tags}} alert-dismissible fade show" role="alert">
+          <strong>Información, </strong> {{message}}
+          <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span class="fa fa-times"></span>
+          </button>
+      </div>
+
+      {% endfor %}
+  </div>
+  {% endif %}
+  <div class="card card-primary">
+    <div class="card-header">
+      <h3 class="card-title">Informacion</h3>
+    </div>
+
+    <!-- /.card-header -->
+    <!-- form start -->
+    <form method="POST" action="{%url 'editar_perfil'%}" enctype="multipart/form-data">
+      <div class="card-body">
+        {%csrf_token%}
+        {% for field in form %}
+        {% if field.auto_id == 'id_foto' %}
+        <label for="foto">Fotografia:</label>
+        <div class="custom-file">
+          <label class="custom-file-label" for="{{field.name}}">Seleccione una imagen</label>
+          {{field}}
+          {%if url_name%}
+          <span>Actualmente:<a href="{{url_image}}">{{url_name}}</a></span>
+          {%endif%}
+        </div>
+        {%else%}
+        <div class="form-group form-animate-text" >
+          <label for="{{field.name}}">{{field.label}}</label>
+          {{ field.errors }}
+          {{ field.help_text }}
+          {{field}}
+        </div> 
+        {%endif%}
+        {% endfor %}
+      </div>
+      <!-- /.card-body -->
+
+      <div class="card-footer">
+        <input type="submit" class="btn btn-primary float-right" value="Actualizar">
+      </div>
+    </form>
+  </div>
+  </div>
+{%endblock content%}
+
+{%block css%}
+{%endblock css%}
+
+{%block js%}
+<script src="/static/js/input.min.js"></script>
+<script type="text/javascript">
+  $(function () {
+    bsCustomFileInput.init();
+  });
+  </script>
+{%endblock js%}

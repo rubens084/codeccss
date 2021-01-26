@@ -1,0 +1,200 @@
+{%extends 'docente/inicio.html' %}
+{% load staticfiles %}
+{%load templates%}
+{%block content%}
+    <div class="col-lg-12">
+      {%if request.user|has_group:"Docente" or request.user.is_superuser%}
+        <!-- Buscador -->
+        <div class="form-group">
+            <div class="input-group input-group-lg">
+                <input id="search" autocomplete="off" class="form-control form-control-lg" placeholder="Buscar expediente">
+                <div class="input-group-append">
+                    <button class="btn btn-lg btn-default" style="cursor: auto; pointer-events: none;">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Fin Buscador -->
+        <div class="card contenedor">
+        <div class="card-header">
+          <h5 class="card-title">Expedientes de alumnos</h5>
+          <div class="card-tools">
+            <span id="count" title="Total expedientes" class="badge badge-primary">{{total_expedientes}}</span>           
+            <button type="button" class="btn btn-tool agregar" title="Agregar expediente" data-toggle="modal" data-target="#modal-default">
+              <i class="fas fa-plus"></i>
+            </button>
+          </div>
+        </div>
+        <!-- /.card-header -->
+        <div class="card-body expediente">
+            <div class="row" id="contenedor-expediente">
+                {%for exp in expedientes %}
+                <div class="col-lg-3 col-6 data-info">
+                    <!-- small box -->
+                    <div class="small-box bg-info">
+                        <div class="inner">
+                        <h3 name="{{exp.matricula}}">{{exp.matricula}}</h3>
+                        <p>{{exp.apellido_paterno}} {{exp.apellido_materno}}</p>
+                        </div>
+                      <div class="icon">
+                        <i class="ion ion-bag"></i>
+                      </div>
+                      <a href="{%url 'detalle_expediente' id=exp.id %}?matricula={{exp.matricula}}" class="small-box-footer">Visualizar <i class="fas fa-eye"></i></a>
+                    </div>
+                  </div>
+                  {%endfor%}
+                  
+              </div>
+              </div>
+        </div>
+ 
+
+      <!-- modal -->
+      <div class="modal fade show" id="modal-default" aria-modal="true" role="dialog" style="display: none;">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Registro de expediente</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">×</span>
+              </button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit="return false;">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="matricula">Matricula</label>
+                            <input type="text" required autocomplete="off" class="form-control" id="matricula" placeholder="Ingresa matricula del alumno">
+                          </div> 
+                          <div class="form-group">
+                            <label for="nombre">Nombre(s)</label>
+                            <input type="text" required autocomplete="off" class="form-control" id="nombre" placeholder="Ingresa nombre del alumno">
+                          </div> 
+                          <div class="form-group">
+                            <label for="apellidoPaterno">Apellido Paterno</label>
+                            <input type="text" required autocomplete="off" class="form-control" id="apellidoPaterno" placeholder="Ingresa apellido paterno del alumno">
+                          </div> 
+                          <div class="form-group">
+                            <label for="apellidoMaterno">Apellido Materno</label>
+                            <input type="text" required autocomplete="off" class="form-control" id="apellidoMaterno" placeholder="Ingresa apellido materno del alumno">
+                          </div> 
+                          <input type="button" id="guardar" class="btn btn-primary" style="float: right;" value="Registrar">
+                        </div>
+                    <!-- /.card-body -->
+    
+                  </form>            
+                </div>
+            
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- termina modal -->
+      <!-- /.card -->
+      {%else%}
+      <p>No tienes permisos para poder realizar esta accion</p>
+      {%endif%}
+      </div>
+{%endblock content%}
+{%block css%}
+<style>
+    .contenedor{
+        max-height: 400px;
+    }
+    .expediente{
+      overflow-x: auto;
+    }
+    @media (max-width:987px){
+            .small-box h3{
+                font-size: 1.2rem;
+            }
+
+            }
+</style>
+{%endblock css%}
+{%block js%}
+<script type="text/javascript">
+  const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 5000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer)
+    toast.addEventListener('mouseleave', Swal.resumeTimer)
+  }
+})
+/* Busqueda */
+$('#search').keyup(function () {
+    let texto = $('#search').val()
+    $('.data-info h3').each(function () {
+      if ($(this).attr("name").indexOf(texto)) {
+        $(this).closest("div.data-info").fadeOut()
+      }
+      else {
+        $(this).closest("div.data-info").fadeIn()
+      }
+    });
+  });
+/* Ajax */
+$("#guardar").on("click",function(){
+    matricula=$("#matricula").val()
+    nombre=$('#nombre').val()
+    apellidoM=$("#apellidoMaterno").val()
+    apellidoP=$("#apellidoPaterno").val()
+    $.ajax({
+    url:"{%url 'Ajax_AltaExpediente'%}",
+    type:'POST',
+    data:{
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+        matricula:matricula,     
+        nombre:nombre,
+        apellidoM:apellidoM,
+        apellidoP:apellidoP  
+    },
+    success:function(data){
+
+  Toast.fire({
+  icon: data.tipo,
+  title: data.mensaje,
+})
+
+if(data.tipo=="success"){
+  $("#matricula").val("")
+  $("#matricula").text("")
+  $("#nombre").val("")
+  $("#nombre").text("")
+  $("#apellidoPaterno").val("")
+  $("#apellidoPaterno").text("")
+  $("#apellidoMaterno").val("")
+  $("#apellidoMaterno").text("")
+  $("#count").text(data.conteo)
+  $("#contenedor-expediente").append(
+    `<div class="col-lg-3 col-6"><div class="small-box bg-info data-info">
+                        <div class="inner">
+                        <h3 name=`+matricula+`>`+matricula+`</h3>
+                        <p>`+apellidoP+` `+apellidoM+`</p>
+                              </div>
+                      <div class="icon">
+                        <i class="ion ion-bag"></i>
+                      </div>
+                      <a href="/expediente/`+data.id+`?matricula=`+matricula+`" class="small-box-footer">Visualizar <i class="fas fa-eye"></i></a>
+                    </div>
+                    </div`)
+}
+    },
+    error:function(data){
+
+Toast.fire({
+  icon: data.tipo,
+  title: data.mensaje,
+})    
+}
+});  
+    
+})
+</script>
+{%endblock js%}

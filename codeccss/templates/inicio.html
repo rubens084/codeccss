@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="/static/css/admin.min.css">
+    <link rel="stylesheet" href="/static/iconos/css/all.min.css">
+    <title>{{titulo}}</title>
+    <style>
+        .opcion {
+            min-height: 250px;
+            min-width: 200px;
+        }
+        
+        #docente,
+        #alumno {
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        
+        .animation {
+            box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.6);
+            transition: all 0.4s;
+        }
+        
+        .animation:hover {
+            box-shadow: 5px 7px 3px rgba(0, 0, 0, 0.6);
+        }
+        
+        @media screen and (min-width:987px) {
+            section {
+                width: 60%;
+            }
+        }
+        
+        @media screen and (min-width:767px) and (max-width: 987px;
+        ) {
+            section {
+                width: 90%;
+            }
+        }
+        
+        @media screen and (min-width:367px) and (max-width:767px) {
+            section {
+                width: 85%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div style="display:grid; place-items: center;height: 100vh;">
+        <section class="card card-row">
+            <div class="card-header" style="text-align: center; background-color: #1B396A; color: white; ">
+                <h1>CODECCSS</h1>
+                <h2>Control de Creditos Complementarios</h2>
+                <h3>Seleccione la modalidad de uso</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12" id="docente">
+                        <div class="card animation" style="text-align: center; font-size: 2rem;">
+                            <p>DOCENTE</p>
+                            <div class="card-header" style="text-align: center; font-size: 8rem;">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12" id="alumno">
+                        <div class="card animation" style="text-align: center; font-size: 2rem;">
+                            <p>ALUMNO</p>
+                            <div class="card-header" style="text-align: center; font-size: 8rem;">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <script type="text/javascript">
+        document.getElementById("alumno").addEventListener("click", alumno)
+        document.getElementById("docente").addEventListener("click", docente)
+
+        function alumno() {
+            location.href = "{%url 'login_alumno'%}"
+        }
+
+        function docente() {
+            location.href = "{%url 'login_docente' %}"
+        }
+    </script>
+</body>
+
+</html>

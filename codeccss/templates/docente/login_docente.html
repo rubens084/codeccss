@@ -1,0 +1,34 @@
+<!Doctype html>
+<html lang="en">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" type="text/css" href="/static/css/login_docente.css">
+    <link rel="stylesheet" href="/static/iconos/css/all.min.css">
+    <title>{{titulo}}</title>
+    <body>
+            <form class="formulario" method="post" action="{%url 'login_docente'%}">
+                {%csrf_token%}
+                <h1>Login</h1>  
+                <div class="contenedor">    
+                  <div class="input-contenedor">   
+                      <i class="fas fa-user icon"></i>         
+                      <input  type="text" name="username" required="" id="id_username" autocomplete="off" placeholder="Ingresa usuario">
+                  </div>
+                  <div class="input-contenedor"> 
+                      <i class="fas fa-key icon"></i>                     
+                      <input type="password" name="password" required="" id="id_password" placeholder="Ingresa contraseña">
+                  </div>
+                  <input type="submit" value="Iniciar" class="button">
+                  <div class="error">
+                    {% for message in messages %}
+                        <a>{{message}}</a>
+                    {% endfor %}
+                  </div>
+                  <p>¿Eres administrador? - <a class="link" href="{%url 'admin:index'%}">Accede aqui</a></p>
+                </div>
+          
+          </form>
+  
+    </body>
+</html>

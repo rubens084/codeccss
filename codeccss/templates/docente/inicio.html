@@ -1,0 +1,130 @@
+{% load staticfiles %}
+{%load templates%}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{titulo}}</title>
+  <!-- Google Font: Source Sans Pro -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="/static/iconos/css/all.min.css">
+  <!-- Theme style -->
+ 
+  <link rel="stylesheet" href="/static/css/admin.min.css">
+  {%block css%}
+  {%endblock css%}
+</head>
+<body class="hold-transition sidebar-mini">
+   {%loadsession request.user.id as value%}
+  {%if value%}
+<div class="wrapper">
+  {% if user.is_authenticated %}
+  {%include "docente/navbar.html"%}
+  {%include "docente/aside.html"%}
+  {%endif%}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          
+          <div class="col-sm-6">
+            <h1 class="m-0">{{titulo}}</h1>
+          </div><!-- /.col -->
+
+        </div><!-- /.row -->
+      </div><!-- /.container-fluid -->
+    </div>
+    <!-- /.content-header -->
+
+    <!-- Main content -->
+    <div class="content">
+      <div class="container-fluid">
+        <div class="row">
+          {% if user.is_authenticated %}
+                {%block content%}
+
+                {%endblock content%}
+                {% else %}
+                <p>No se puede mostrar el contenido de esta pagina.</p>
+                <p>Iniciar sesión para continuar.</p>
+              {%endif%}
+          </div>
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+    </div>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+
+  <!-- Control Sidebar -->
+  <aside class="control-sidebar control-sidebar-dark">
+    <!-- Control sidebar content goes here -->
+  </aside>
+  <!-- /.control-sidebar -->
+
+  
+</div>
+<!-- ./wrapper -->
+
+<!-- REQUIRED SCRIPTS -->
+
+<!-- jQuery -->
+<script src="/static/js/jquery.min.js"></script>
+<!-- Bootstrap -->
+<script src="/static/js/bootstrap.min.js"></script>
+<!-- AdminLTE -->
+<script src="/static/js/admin.js"></script>
+<script src="/static/js/sweetalert.js"></script>
+{%block js%}
+{%endblock js%}
+{%else%}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-menu">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-12">
+            <h1 class="title-message">ACESSO DENEGADO</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="error-page">
+        <h2 class="headline text-warning"> 403</h2>
+
+        <div class="error-content">
+          <h3><i class="fas fa-exclamation-triangle text-warning"></i> Oops! No se ha encontrado perfil.</h3>
+
+          <p class="message">
+            Al parecer no se pudo acceder al apartado debido a que no se ha completado el registro.
+            <a href="{%url 'login_docente'%}">regresar al registro. </a>En caso de continuar con inconvenientes
+            acude con el administrador del sitio para validar tu informacion.
+          </p>
+        </div>
+        <!-- /.error-content -->
+      </div>
+      <!-- /.error-page -->
+    </section>
+    <!-- /.content -->
+  </div>
+  <style>
+    .title-message{
+      text-align: center;
+    }
+    .message{
+      text-align: justify;
+    }
+  </style>
+  {%endif%}
+</body>
+</html>
